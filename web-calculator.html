@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UK Property Investment Calculator</title>
+  <style>
+    :root {
+      --bg: #141b24;
+      --sidebar: #101720;
+      --card: #1c2430;
+      --card-2: #172434;
+      --active: #12293d;
+      --accent: #00a6c8;
+      --accent-2: #19d3f3;
+      --text: #c5d1de;
+      --muted: #94a3b8;
+      --border: #0d567a;
+      --good: #81c784;
+      --warn: #ffd54f;
+      --bad: #e57373;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    a { color: var(--accent-2); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      padding: 18px;
+    }
+
+    .main {
+      padding: 18px;
+    }
+
+    .hero,
+    .card,
+    .toolbar,
+    .panel,
+    .metric,
+    .download-cta {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--card);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1b2634, #12293d 68%, #0d567a);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .hero h1,
+    .top-hero h2 {
+      margin: 0;
+      color: white;
+      line-height: 1.1;
+    }
+
+    .hero h1 { font-size: 34px; }
+    .top-hero h2 { font-size: 26px; }
+
+    .hero p,
+    .top-hero p {
+      color: #d6e7f2;
+      line-height: 1.6;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: #0f3850;
+      border: 1px solid var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .nav button,
+    .toolbar button,
+    .cta-row a,
+    .cta-row button {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: #202b39;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .nav button.active {
+      background: linear-gradient(135deg, #1b2634, #12293d 68%, #0d567a);
+      color: white;
+    }
+
+    .toolbar .primary,
+    .cta-row .primary,
+    .download-cta .primary {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: white;
+      border-color: transparent;
+    }
+
+    .section-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-card h3 {
+      margin-top: 0;
+      font-size: 16px;
+      color: white;
+    }
+
+    .sidebar .section-card p {
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 0 0 10px 0;
+    }
+
+    .lead-grid { display: grid; gap: 10px; }
+
+    .top-hero {
+      background: linear-gradient(135deg, #1b2634, #12293d 68%, #0d567a);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .pill {
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: white;
+      font-size: 13px;
+      background: rgba(15, 56, 80, 0.85);
+    }
+
+    .toolbar {
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .toolbar-row,
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 560px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .forms-column,
+    .results-column {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card { padding: 18px; }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 12px 14px;
+      align-items: center;
+    }
+
+    label {
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--active);
+      color: var(--text);
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    textarea { min-height: 120px; resize: vertical; }
+
+    .checkbox-row {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .checkbox-row input {
+      width: auto;
+      transform: scale(1.15);
+    }
+
+    .result-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 17px;
+      color: white;
+    }
+
+    .result-head {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+
+    .status-badge {
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 700;
+      color: #071015;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      padding: 16px;
+      background: var(--card-2);
+    }
+
+    .metric-bar {
+      height: 5px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      margin-bottom: 12px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .result-note,
+    .exec-body,
+    .download-cta p {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .exec-headline {
+      font-size: 26px;
+      color: white;
+      margin: 0 0 10px 0;
+      line-height: 1.2;
+    }
+
+    .mono {
+      font-family: Consolas, monospace;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .download-cta {
+      padding: 18px;
+      margin-top: 18px;
+      background: linear-gradient(135deg, #1b2634, #12293d 68%, #0d567a);
+    }
+
+    .download-cta h3 {
+      margin: 0 0 10px 0;
+      color: white;
+      font-size: 24px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 1250px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .field-grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="hero">
+        <h1>Property Calculator</h1>
+        <p>BTL / BRRR / HMO analysis for UK deals.</p>
+        <p>Screen deals faster, pitch them better, and export investor-ready reports.</p>
+        <div class="badge">Powered by marcinsakowski.com</div>
+      </div>
+
+      <div class="nav">
+        <button class="nav-btn active" data-tab="btl">BTL</button>
+        <button class="nav-btn" data-tab="brrr">BRRR</button>
+        <button class="nav-btn" data-tab="hmo">HMO</button>
+      </div>
+
+      <div class="section-card">
+        <h3>Quick Notes</h3>
+        <p>Use the calculator as a deal screening tool, not as legal, tax or mortgage advice.</p>
+        <p>Auto tax is included for England / NI and Wales. Use Manual for Scotland or custom cases.</p>
+      </div>
+
+      <div class="section-card">
+        <h3>Share-Ready</h3>
+        <p>Brand it and share it with clients, partners or other investors.</p>
+        <div class="cta-row">
+          <a class="primary" href="https://marcinsakowski.com" target="_blank" rel="noreferrer">Visit marcinsakowski.com</a>
+          <a href="https://marcinsakowski.com" target="_blank" rel="noreferrer">Book a deal review</a>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Lead Capture</h3>
+        <div class="lead-grid">
+          <input id="leadName" placeholder="Client / investor name">
+          <input id="leadEmail" placeholder="Email address">
+          <input id="leadPhone" placeholder="Phone number">
+          <input id="leadSource" placeholder="Lead source / notes">
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="top-hero card">
+        <h2>UK Property Investment Calculator</h2>
+        <p id="headerSubtitle">Traditional buy-to-let deal analysis focused on yield and cashflow.</p>
+        <p>Built to look credible in front of clients, JV partners and investors.</p>
+        <div class="pill-row">
+          <span class="pill">Responsive layout</span>
+          <span class="pill">Validation</span>
+          <span class="pill">Deal scoring</span>
+          <span class="pill">Stress testing</span>
+        </div>
+      </section>
+
+      <section class="toolbar">
+        <div class="toolbar-row">
+          <button id="calculateBtn" class="primary">Calculate</button>
+          <button id="copySummaryBtn">Copy summary</button>
+          <button id="downloadJsonBtn">Download JSON</button>
+        </div>
+      </section>
+
+      <div class="content-grid">
+        <div class="forms-column">
+          <div class="tab-panel" id="panel-btl"></div>
+          <div class="tab-panel hidden" id="panel-brrr"></div>
+          <div class="tab-panel hidden" id="panel-hmo"></div>
+        </div>
+
+        <div class="results-column">
+          <section class="card result-card">
+            <div class="result-head">
+              <div>
+                <h3 id="resultTitle">BTL deal result</h3>
+                <p class="result-note" id="resultSubtitle">Screen a traditional buy-to-let using purchase cost, finance, rent, voids and operating cost assumptions.</p>
+              </div>
+              <div id="statusBadge" class="status-badge" style="background: var(--warn);">Needs review</div>
+            </div>
+
+            <div class="metrics" id="metricsGrid"></div>
+            <p class="result-note" id="resultNote"></p>
+          </section>
+
+          <section class="card">
+            <h3 class="exec-headline" id="execHeadline">Run the calculator to generate an investor-ready summary.</h3>
+            <p class="exec-body" id="execBody">Fill in the numbers for the selected strategy and calculate the deal.</p>
+          </section>
+
+          <section class="card">
+            <h3>Share-ready pitch</h3>
+            <textarea id="pitchText" class="mono" readonly></textarea>
+          </section>
+
+          <section class="card">
+            <h3>Stress test scenarios</h3>
+            <textarea id="stressText" class="mono" readonly></textarea>
+          </section>
+
+          <section class="card">
+            <h3>Detailed breakdown</h3>
+            <textarea id="detailsText" class="mono" readonly></textarea>
+          </section>
+        </div>
+      </div>
+
+      <section class="download-cta">
+        <h3>Prefer the desktop version?</h3>
+        <p>Download the Windows EXE if you want the full desktop tool with local save/load and export workflow.</p>
+        <div class="cta-row">
+          <a class="primary" id="exeDownloadLink" href="./PropertyInvestmentCalculator.exe">Download Windows EXE</a>
+          <a href="https://marcinsakowski.com" target="_blank" rel="noreferrer">Talk to Marcin</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const regionOptions = ["England / NI", "Wales", "Manual (incl. Scotland)"];
+    const tabs = {
+      btl: {
+        label: "BTL",
+        subtitle: "Traditional buy-to-let deal analysis focused on yield and cashflow.",
+        resultTitle: "BTL deal result",
+        resultSubtitle: "Screen a traditional buy-to-let using purchase cost, finance, rent, voids and operating cost assumptions.",
+        sections: [
+          {
+            title: "Deal setup",
+            fields: [
+              fieldCombo("region", "Tax region", "England / NI"),
+              fieldCheck("isAdditional", "Additional property / investor purchase", true),
+              fieldText("manualStampDuty", "Manual stamp duty", 0),
+              fieldText("purchasePrice", "Purchase price", 85000),
+              fieldText("depositPct", "Deposit %", 25),
+              fieldText("interestRate", "Interest rate %", 5.5),
+              fieldText("financeMonths", "Finance months before let", 3)
+            ]
+          },
+          {
+            title: "Costs and rent",
+            fields: [
+              fieldText("legalFees", "Legal fees", 1000),
+              fieldText("brokerFees", "Broker / lender fees", 500),
+              fieldText("surveyFees", "Survey fees", 300),
+              fieldText("sourcingFees", "Sourcing / agent fee", 0),
+              fieldText("otherBuyingCosts", "Other buying costs", 0),
+              fieldText("refurbCost", "Refurb cost", 5000),
+              fieldText("vacantMonthlyCosts", "Vacant monthly holding costs", 100),
+              fieldText("vacantMonths", "Vacant months", 3),
+              fieldText("monthlyOperatingCosts", "Monthly operating costs when let", 95),
+              fieldText("monthlyRent", "Monthly rent", 750)
+            ]
+          }
+        ]
+      },
+      brrr: {
+        label: "BRRR",
+        subtitle: "BRRR analysis with purchase funding, refurb, refinance and cash left in the deal.",
+        resultTitle: "BRRR deal result",
+        resultSubtitle: "Analyse a BRRR deal across purchase, refurb, bridge period, refinance and post-refinance performance.",
+        sections: [
+          {
+            title: "Acquisition and refinance",
+            fields: [
+              fieldCombo("region", "Tax region", "England / NI"),
+              fieldCheck("isAdditional", "Additional property / investor purchase", true),
+              fieldText("manualStampDuty", "Manual stamp duty", 0),
+              fieldText("purchasePrice", "Purchase price", 97000),
+              fieldText("purchaseDepositPct", "Purchase deposit %", 100),
+              fieldText("purchaseInterestRate", "Purchase / bridge rate %", 8),
+              fieldText("financeMonths", "Finance months to refinance", 6),
+              fieldText("endValue", "End value / revaluation", 130000),
+              fieldText("refinanceDepositPct", "Refinance deposit %", 25),
+              fieldText("refinanceInterestRate", "Refinance interest rate %", 5.25),
+              fieldText("refinanceCosts", "Refinance costs", 800)
+            ]
+          },
+          {
+            title: "Costs and rent",
+            fields: [
+              fieldText("legalFees", "Legal fees", 1000),
+              fieldText("brokerFees", "Broker / lender fees", 500),
+              fieldText("surveyFees", "Survey fees", 300),
+              fieldText("sourcingFees", "Sourcing / agent fee", 0),
+              fieldText("otherBuyingCosts", "Other buying costs", 0),
+              fieldText("refurbCost", "Refurb cost", 10000),
+              fieldText("vacantMonthlyCosts", "Vacant monthly holding costs", 100),
+              fieldText("vacantMonths", "Vacant months", 3),
+              fieldText("monthlyOperatingCosts", "Monthly operating costs when let", 95),
+              fieldText("monthlyRent", "Monthly rent", 695)
+            ]
+          }
+        ]
+      },
+      hmo: {
+        label: "HMO",
+        subtitle: "HMO analysis with room rents, bills, refinance and commercial valuation estimate.",
+        resultTitle: "HMO deal result",
+        resultSubtitle: "Check a rent-by-room HMO using rent roll, bills, management, refinance and commercial yield.",
+        sections: [
+          {
+            title: "Deal setup",
+            fields: [
+              fieldCombo("region", "Tax region", "England / NI"),
+              fieldCheck("isAdditional", "Additional property / investor purchase", true),
+              fieldText("manualStampDuty", "Manual stamp duty", 0),
+              fieldText("purchasePrice", "Purchase price", 180000),
+              fieldText("sourcingFee", "Sourcing fee", 3000),
+              fieldText("developmentCost", "Development / refurb", 40000),
+              fieldText("projectManagement", "Project management", 5000),
+              fieldText("furniturePurchased", "Furniture purchased", 6000),
+              fieldText("purchaseCosts", "Other purchase costs", 2500)
+            ]
+          },
+          {
+            title: "Refinance and operating model",
+            fields: [
+              fieldText("refinanceValue", "Revalued price", 290000),
+              fieldText("ltvPct", "LTV %", 75),
+              fieldText("mortgageRate", "Mortgage rate %", 5.5),
+              fieldText("managementFeePct", "Management fee %", 12),
+              fieldText("yieldTarget", "Commercial yield target %", 12),
+              fieldText("monthlyOperatingCosts", "Monthly operating costs", 250),
+              fieldText("monthlyUtilities", "Monthly utilities / bills", 650),
+              fieldText("monthlyFurnitureLease", "Monthly furniture lease", 0),
+              fieldText("investorFunds", "Investor funds", 0),
+              fieldText("investorRate", "Investor rate %", 8)
+            ]
+          },
+          {
+            title: "Room rents",
+            fields: [
+              fieldText("room1", "Room 1 rent", 650),
+              fieldText("room2", "Room 2 rent", 650),
+              fieldText("room3", "Room 3 rent", 650),
+              fieldText("room4", "Room 4 rent", 650),
+              fieldText("room5", "Room 5 rent", 600),
+              fieldText("room6", "Room 6 rent", 600)
+            ]
+          }
+        ]
+      }
+    };
+
+    let currentTab = "btl";
+    const metricsGrid = document.getElementById("metricsGrid");
+    const statusBadge = document.getElementById("statusBadge");
+    const resultNote = document.getElementById("resultNote");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultSubtitle = document.getElementById("resultSubtitle");
+    const execHeadline = document.getElementById("execHeadline");
+    const execBody = document.getElementById("execBody");
+    const pitchText = document.getElementById("pitchText");
+    const stressText = document.getElementById("stressText");
+    const detailsText = document.getElementById("detailsText");
+    const headerSubtitle = document.getElementById("headerSubtitle");
+
+    buildForms();
+    bindEvents();
+    calculateCurrent();
+
+    function fieldText(key, label, value) { return { type: "text", key, label, value }; }
+    function fieldCheck(key, label, value) { return { type: "check", key, label, value }; }
+    function fieldCombo(key, label, value) { return { type: "combo", key, label, value, options: regionOptions }; }
+
+    function buildForms() {
+      Object.entries(tabs).forEach(([key, tab]) => {
+        const host = document.getElementById(`panel-${key}`);
+        host.innerHTML = tab.sections.map(section => `
+          <section class="card">
+            <h3>${section.title}</h3>
+            <div class="field-grid">
+              ${section.fields.map(field => renderField(key, field)).join("")}
+            </div>
+          </section>
+        `).join("");
+      });
+    }
+
+    function fieldDomId(tabKey, key) {
+      return `field-${tabKey}-${key}`;
+    }
+
+    function renderField(tabKey, field) {
+      const id = fieldDomId(tabKey, field.key);
+      if (field.type === "check") {
+        return `
+          <div class="checkbox-row">
+            <input id="${id}" type="checkbox" ${field.value ? "checked" : ""}>
+            <label for="${id}">${field.label}</label>
+          </div>`;
+      }
+      if (field.type === "combo") {
+        return `
+          <label for="${id}">${field.label}</label>
+          <select id="${id}">${field.options.map(option => `<option ${option === field.value ? "selected" : ""}>${option}</option>`).join("")}</select>`;
+      }
+      return `
+        <label for="${id}">${field.label}</label>
+        <input id="${id}" type="text" value="${field.value}">`;
+    }
+
+    function bindEvents() {
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
+      document.getElementById("calculateBtn").addEventListener("click", calculateCurrent);
+      document.getElementById("copySummaryBtn").addEventListener("click", () => navigator.clipboard.writeText(pitchText.value || ""));
+      document.getElementById("downloadJsonBtn").addEventListener("click", downloadJson);
+    }
+
+    function switchTab(tabKey) {
+      currentTab = tabKey;
+      document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabKey));
+      document.querySelectorAll(".tab-panel").forEach(panel => panel.classList.add("hidden"));
+      document.getElementById(`panel-${tabKey}`).classList.remove("hidden");
+      headerSubtitle.textContent = tabs[tabKey].subtitle;
+      resultTitle.textContent = tabs[tabKey].resultTitle;
+      resultSubtitle.textContent = tabs[tabKey].resultSubtitle;
+      calculateCurrent();
+    }
+
+    function getLeadName() {
+      return document.getElementById("leadName").value.trim() || "Investor";
+    }
+
+    function getFieldElement(key) {
+      return document.getElementById(fieldDomId(currentTab, key));
+    }
+
+    function getNumber(key) {
+      const raw = (getFieldElement(key)?.value || "").toString().replace(/[^0-9,.-]/g, "").replace(/,/g, ".");
+      const value = Number(raw);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function getPercent(key) { return getNumber(key) / 100; }
+    function safeDivide(a, b) { return Math.abs(b) < 0.0000001 ? 0 : a / b; }
+    function currency(v) { return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(v || 0); }
+    function percent(v) { return `${(v * 100).toFixed(2)}%`; }
+
+    function getEnglandNiTax(price, isAdditional) {
+      const bands = [
+        [125000, 0.00],
+        [250000, 0.02],
+        [925000, 0.05],
+        [1500000, 0.10],
+        [Infinity, 0.12]
+      ];
+      const extra = isAdditional ? 0.05 : 0;
+      let tax = 0, prev = 0;
+      for (const [limit, rate] of bands) {
+        const taxable = Math.min(price, limit) - prev;
+        if (taxable > 0) tax += taxable * (rate + extra);
+        if (price <= limit) break;
+        prev = limit;
+      }
+      return tax;
+    }
+
+    function getWalesTax(price, isAdditional) {
+      const bands = isAdditional
+        ? [[180000, 0.05], [250000, 0.085], [400000, 0.10], [750000, 0.125], [1500000, 0.15], [Infinity, 0.17]]
+        : [[225000, 0.00], [400000, 0.06], [750000, 0.075], [1500000, 0.10], [Infinity, 0.12]];
+      let tax = 0, prev = 0;
+      for (const [limit, rate] of bands) {
+        const taxable = Math.min(price, limit) - prev;
+        if (taxable > 0) tax += taxable * rate;
+        if (price <= limit) break;
+        prev = limit;
+      }
+      return tax;
+    }
+
+    function getTax(price, region, isAdditional, manualStampDuty) {
+      if (region === "England / NI") return getEnglandNiTax(price, isAdditional);
+      if (region === "Wales") return getWalesTax(price, isAdditional);
+      return manualStampDuty;
+    }
+
+    function calculateCurrent() {
+      const state = readState();
+      let payload;
+      if (currentTab === "btl") payload = calculateBtl(state);
+      if (currentTab === "brrr") payload = calculateBrrr(state);
+      if (currentTab === "hmo") payload = calculateHmo(state);
+      renderResult(payload);
+    }
+
+    function readState() {
+      const tab = tabs[currentTab];
+      const state = {};
+      tab.sections.forEach(section => {
+        section.fields.forEach(field => {
+          const el = getFieldElement(field.key);
+          if (!el) return;
+          if (field.type === "check") state[field.key] = el.checked;
+          else state[field.key] = el.value;
+        });
+      });
+      return state;
+    }
+
+    function getStatus(strategy, result) {
+      if (strategy === "BTL") {
+        if (result.monthlyCashflow > 0 && result.grossYield >= 0.08 && result.cashOnCash >= 0.12) return { text: "Good deal", color: "var(--good)", note: "Positive cashflow, strong gross yield and healthy cash-on-cash return." };
+        if (result.monthlyCashflow > 0 && (result.grossYield >= 0.06 || result.cashOnCash >= 0.08)) return { text: "Needs review", color: "var(--warn)", note: "Deal is workable, but margin is thinner and should be stress-tested." };
+        return { text: "Weak deal", color: "var(--bad)", note: "Cashflow or return is too weak for a comfortable buy-to-let margin." };
+      }
+      if (strategy === "BRRR") {
+        if (result.monthlyCashflow > 0 && result.roce >= 0.20 && result.cashLeftIn <= result.cashBeforeRefi * 0.60) return { text: "Good deal", color: "var(--good)", note: "Refinance leaves limited cash in the deal while maintaining strong ROCE." };
+        if (result.monthlyCashflow > 0 && result.roce >= 0.10) return { text: "Needs review", color: "var(--warn)", note: "The BRRR works on paper, but the refinance outcome needs checking." };
+        return { text: "Weak deal", color: "var(--bad)", note: "Too much cash stays in, or the refinance cashflow is too weak." };
+      }
+      if (result.monthlyCashflow > 0 && result.roi >= 0.15 && result.grossYield >= 0.10) return { text: "Good deal", color: "var(--good)", note: "Strong HMO cashflow and ROI with good rent-to-value performance." };
+      if (result.monthlyCashflow > 0 && result.roi >= 0.08) return { text: "Needs review", color: "var(--warn)", note: "The HMO can work, but rent, bills and management need tighter checks." };
+      return { text: "Weak deal", color: "var(--bad)", note: "Cashflow or ROI is too weak for the complexity and risk of an HMO." };
+    }
+
+    function calculateBtl(s) {
+      const region = s.region;
+      const isAdditional = !!s.isAdditional;
+      const manualStampDuty = getNumber("manualStampDuty");
+      const purchasePrice = getNumber("purchasePrice");
+      const depositPct = getPercent("depositPct");
+      const interestRate = getPercent("interestRate");
+      const financeMonths = getNumber("financeMonths");
+      const legalFees = getNumber("legalFees");
+      const brokerFees = getNumber("brokerFees");
+      const surveyFees = getNumber("surveyFees");
+      const sourcingFees = getNumber("sourcingFees");
+      const otherBuyingCosts = getNumber("otherBuyingCosts");
+      const refurbCost = getNumber("refurbCost");
+      const vacantMonthlyCosts = getNumber("vacantMonthlyCosts");
+      const vacantMonths = getNumber("vacantMonths");
+      const monthlyOperatingCosts = getNumber("monthlyOperatingCosts");
+      const monthlyRent = getNumber("monthlyRent");
+
+      const stampDuty = getTax(purchasePrice, region, isAdditional, manualStampDuty);
+      const depositAmount = purchasePrice * depositPct;
+      const loanAmount = purchasePrice - depositAmount;
+      const monthlyMortgage = loanAmount * interestRate / 12;
+      const financeCost = monthlyMortgage * financeMonths;
+      const holdingCost = vacantMonthlyCosts * vacantMonths;
+      const buyingCosts = legalFees + brokerFees + surveyFees + sourcingFees + otherBuyingCosts + stampDuty;
+      const upfrontCash = depositAmount + buyingCosts + refurbCost;
+      const totalCashIn = upfrontCash + financeCost + holdingCost;
+      const monthlyCashflow = monthlyRent - monthlyOperatingCosts - monthlyMortgage;
+      const annualCashflow = monthlyCashflow * 12;
+      const grossYield = safeDivide(monthlyRent * 12, purchasePrice);
+      const cashOnCash = safeDivide(annualCashflow, totalCashIn);
+      const breakEvenOccupancy = safeDivide(monthlyOperatingCosts + monthlyMortgage, monthlyRent);
+      const status = getStatus("BTL", { monthlyCashflow, grossYield, cashOnCash });
+
+      return {
+        strategy: "BTL",
+        status,
+        metrics: [
+          ["Monthly cashflow", currency(monthlyCashflow)],
+          ["Annual cashflow", currency(annualCashflow)],
+          ["Gross yield", percent(grossYield)],
+          ["Cash-on-cash return", percent(cashOnCash)],
+          ["Total cash in", currency(totalCashIn)],
+          ["Break-even occupancy", percent(breakEvenOccupancy)]
+        ],
+        note: `${status.note} Use manual tax mode if your transaction falls outside England / NI or Wales standard rules.`,
+        execHeadline: `${status.text}: BTL cashflow ${currency(monthlyCashflow)} per month`,
+        execBody: `Prepared for ${getLeadName()}. This BTL screens at ${percent(grossYield)} gross yield with ${percent(cashOnCash)} cash-on-cash return and ${currency(totalCashIn)} total cash required.`,
+        pitch: `BTL deal summary\nPrepared for: ${getLeadName()}\nStatus: ${status.text}\nMonthly cashflow: ${currency(monthlyCashflow)}\nAnnual cashflow: ${currency(annualCashflow)}\nGross yield: ${percent(grossYield)}\nCash-on-cash return: ${percent(cashOnCash)}\nTotal cash in: ${currency(totalCashIn)}\nSource: https://marcinsakowski.com`,
+        stress: [
+          `BTL STRESS TEST`,
+          ``,
+          stressLine("Base case", monthlyCashflow, cashOnCash, "CoC"),
+          stressLine("Interest rate +1.00%", monthlyRent - monthlyOperatingCosts - (loanAmount * (interestRate + 0.01) / 12), safeDivide((monthlyRent - monthlyOperatingCosts - (loanAmount * (interestRate + 0.01) / 12)) * 12, totalCashIn), "CoC"),
+          stressLine("Rent -10%", monthlyRent * 0.9 - monthlyOperatingCosts - monthlyMortgage, safeDivide(((monthlyRent * 0.9 - monthlyOperatingCosts - monthlyMortgage) * 12), totalCashIn), "CoC"),
+          stressLine("Refurb +10%", monthlyCashflow, safeDivide(annualCashflow, totalCashIn + refurbCost * 0.10), "CoC")
+        ].join("\n"),
+        details: [
+          `BTL BREAKDOWN`,
+          ``,
+          `Stamp duty:            ${currency(stampDuty)}`,
+          `Buying costs:          ${currency(buyingCosts)}`,
+          `Deposit amount:        ${currency(depositAmount)}`,
+          `Loan amount:           ${currency(loanAmount)}`,
+          `Monthly mortgage:      ${currency(monthlyMortgage)}`,
+          `Finance cost:          ${currency(financeCost)}`,
+          `Holding cost:          ${currency(holdingCost)}`,
+          `Upfront cash:          ${currency(upfrontCash)}`,
+          `Total cash in:         ${currency(totalCashIn)}`,
+          ``,
+          `Monthly cashflow:      ${currency(monthlyCashflow)}`,
+          `Annual cashflow:       ${currency(annualCashflow)}`,
+          `Gross yield:           ${percent(grossYield)}`,
+          `Cash-on-cash return:   ${percent(cashOnCash)}`,
+          `Break-even occupancy:  ${percent(breakEvenOccupancy)}`
+        ].join("\n")
+      };
+    }
+
+    function calculateBrrr() {
+      const region = getFieldElement("region").value;
+      const isAdditional = getFieldElement("isAdditional").checked;
+      const manualStampDuty = getNumber("manualStampDuty");
+      const purchasePrice = getNumber("purchasePrice");
+      const purchaseDepositPct = getPercent("purchaseDepositPct");
+      const purchaseInterestRate = getPercent("purchaseInterestRate");
+      const financeMonths = getNumber("financeMonths");
+      const legalFees = getNumber("legalFees");
+      const brokerFees = getNumber("brokerFees");
+      const surveyFees = getNumber("surveyFees");
+      const sourcingFees = getNumber("sourcingFees");
+      const otherBuyingCosts = getNumber("otherBuyingCosts");
+      const refurbCost = getNumber("refurbCost");
+      const vacantMonthlyCosts = getNumber("vacantMonthlyCosts");
+      const vacantMonths = getNumber("vacantMonths");
+      const monthlyOperatingCosts = getNumber("monthlyOperatingCosts");
+      const monthlyRent = getNumber("monthlyRent");
+      const endValue = getNumber("endValue");
+      const refinanceDepositPct = getPercent("refinanceDepositPct");
+      const refinanceInterestRate = getPercent("refinanceInterestRate");
+      const refinanceCosts = getNumber("refinanceCosts");
+
+      const stampDuty = getTax(purchasePrice, region, isAdditional, manualStampDuty);
+      const purchaseDeposit = purchasePrice * purchaseDepositPct;
+      const purchaseLoan = purchasePrice - purchaseDeposit;
+      const monthlyBridgeCost = purchaseLoan * purchaseInterestRate / 12;
+      const bridgeCostTotal = monthlyBridgeCost * financeMonths;
+      const vacantHoldingTotal = vacantMonthlyCosts * vacantMonths;
+      const buyingCosts = legalFees + brokerFees + surveyFees + sourcingFees + otherBuyingCosts + stampDuty;
+      const cashBeforeRefi = purchaseDeposit + buyingCosts + refurbCost + bridgeCostTotal + vacantHoldingTotal;
+      const refinanceMortgage = endValue * (1 - refinanceDepositPct);
+      const moneyTakenOut = Math.max(0, refinanceMortgage - purchaseLoan);
+      const cashLeftIn = cashBeforeRefi + refinanceCosts - moneyTakenOut;
+      const monthlyRefiMortgage = refinanceMortgage * refinanceInterestRate / 12;
+      const monthlyCashflow = monthlyRent - monthlyOperatingCosts - monthlyRefiMortgage;
+      const annualCashflow = monthlyCashflow * 12;
+      const grossYieldOnPurchase = safeDivide(monthlyRent * 12, purchasePrice);
+      const grossYieldOnEndValue = safeDivide(monthlyRent * 12, endValue);
+      const roce = safeDivide(annualCashflow, cashLeftIn);
+      const equityCreated = endValue - (purchasePrice + refurbCost + buyingCosts);
+      const status = getStatus("BRRR", { monthlyCashflow, roce, cashLeftIn, cashBeforeRefi });
+
+      return {
+        strategy: "BRRR",
+        status,
+        metrics: [
+          ["Money taken out", currency(moneyTakenOut)],
+          ["Cash left in deal", currency(cashLeftIn)],
+          ["Monthly cashflow", currency(monthlyCashflow)],
+          ["ROCE", percent(roce)],
+          ["Yield on purchase", percent(grossYieldOnPurchase)],
+          ["Yield on end value", percent(grossYieldOnEndValue)]
+        ],
+        note: `${status.note} Stress-test the refinance value and lender criteria before relying on the BRRR outcome.`,
+        execHeadline: `${status.text}: BRRR leaves ${currency(cashLeftIn)} in the deal`,
+        execBody: `Prepared for ${getLeadName()}. This BRRR projects ${currency(moneyTakenOut)} returned on refinance, ${percent(roce)} ROCE, and ${currency(equityCreated)} equity created.`,
+        pitch: `BRRR deal summary\nPrepared for: ${getLeadName()}\nStatus: ${status.text}\nMoney taken out: ${currency(moneyTakenOut)}\nCash left in: ${currency(cashLeftIn)}\nMonthly cashflow: ${currency(monthlyCashflow)}\nROCE: ${percent(roce)}\nEquity created: ${currency(equityCreated)}\nSource: https://marcinsakowski.com`,
+        stress: [
+          `BRRR STRESS TEST`,
+          ``,
+          stressLine("Base case", monthlyCashflow, roce, "ROCE"),
+          stressLine("Refi rate +1.00%", monthlyRent - monthlyOperatingCosts - (refinanceMortgage * (refinanceInterestRate + 0.01) / 12), safeDivide(((monthlyRent - monthlyOperatingCosts - (refinanceMortgage * (refinanceInterestRate + 0.01) / 12)) * 12), cashLeftIn), "ROCE"),
+          stressLine("Rent -10%", monthlyRent * 0.9 - monthlyOperatingCosts - monthlyRefiMortgage, safeDivide(((monthlyRent * 0.9 - monthlyOperatingCosts - monthlyRefiMortgage) * 12), cashLeftIn), "ROCE"),
+          stressLine("End value -5%", monthlyCashflow, safeDivide(annualCashflow, cashBeforeRefi + refinanceCosts - Math.max(0, (endValue * 0.95 * (1 - refinanceDepositPct)) - purchaseLoan)), "ROCE")
+        ].join("\n"),
+        details: [
+          `BRRR BREAKDOWN`,
+          ``,
+          `Stamp duty:             ${currency(stampDuty)}`,
+          `Buying costs:           ${currency(buyingCosts)}`,
+          `Purchase deposit:       ${currency(purchaseDeposit)}`,
+          `Purchase loan:          ${currency(purchaseLoan)}`,
+          `Monthly bridge cost:    ${currency(monthlyBridgeCost)}`,
+          `Bridge cost total:      ${currency(bridgeCostTotal)}`,
+          `Vacant holding total:   ${currency(vacantHoldingTotal)}`,
+          `Cash before refinance:  ${currency(cashBeforeRefi)}`,
+          `Refinance mortgage:     ${currency(refinanceMortgage)}`,
+          `Money taken out:        ${currency(moneyTakenOut)}`,
+          `Cash left in deal:      ${currency(cashLeftIn)}`,
+          `Monthly refi mortgage:  ${currency(monthlyRefiMortgage)}`,
+          `Monthly cashflow:       ${currency(monthlyCashflow)}`,
+          `Annual cashflow:        ${currency(annualCashflow)}`,
+          `Yield on purchase:      ${percent(grossYieldOnPurchase)}`,
+          `Yield on end value:     ${percent(grossYieldOnEndValue)}`,
+          `ROCE:                   ${percent(roce)}`,
+          `Equity created:         ${currency(equityCreated)}`
+        ].join("\n")
+      };
+    }
+
+    function calculateHmo() {
+      const region = getFieldElement("region").value;
+      const isAdditional = getFieldElement("isAdditional").checked;
+      const manualStampDuty = getNumber("manualStampDuty");
+      const purchasePrice = getNumber("purchasePrice");
+      const sourcingFee = getNumber("sourcingFee");
+      const developmentCost = getNumber("developmentCost");
+      const projectManagement = getNumber("projectManagement");
+      const furniturePurchased = getNumber("furniturePurchased");
+      const purchaseCosts = getNumber("purchaseCosts");
+      const refinanceValue = getNumber("refinanceValue");
+      const ltvPct = getPercent("ltvPct");
+      const mortgageRate = getPercent("mortgageRate");
+      const managementFeePct = getPercent("managementFeePct");
+      const yieldTarget = getPercent("yieldTarget");
+      const monthlyOperatingCosts = getNumber("monthlyOperatingCosts");
+      const monthlyUtilities = getNumber("monthlyUtilities");
+      const monthlyFurnitureLease = getNumber("monthlyFurnitureLease");
+      const investorFunds = getNumber("investorFunds");
+      const investorRate = getPercent("investorRate");
+      const roomRents = [1,2,3,4,5,6].map(n => getNumber(`room${n}`));
+
+      const stampDuty = getTax(purchasePrice, region, isAdditional, manualStampDuty);
+      const upfrontTotal = purchasePrice + sourcingFee + developmentCost + projectManagement + furniturePurchased + purchaseCosts + stampDuty;
+      const grossMonthlyRent = roomRents.reduce((a, b) => a + b, 0);
+      const managementFee = grossMonthlyRent * managementFeePct;
+      const mortgageAmount = refinanceValue * ltvPct;
+      const monthlyMortgage = mortgageAmount * mortgageRate / 12;
+      const monthlyInvestorCost = investorFunds * investorRate / 12;
+      const totalMonthlyCosts = monthlyMortgage + monthlyOperatingCosts + managementFee + monthlyUtilities + monthlyFurnitureLease + monthlyInvestorCost;
+      const monthlyCashflow = grossMonthlyRent - totalMonthlyCosts;
+      const annualCashflow = monthlyCashflow * 12;
+      const cashLeftIn = upfrontTotal - mortgageAmount - investorFunds;
+      const roi = safeDivide(annualCashflow, cashLeftIn);
+      const grossYield = safeDivide(grossMonthlyRent * 12, purchasePrice);
+      const commercialValue = safeDivide(grossMonthlyRent * 12, yieldTarget);
+      const equityOrProfit = commercialValue - upfrontTotal;
+      const status = getStatus("HMO", { monthlyCashflow, roi, grossYield });
+
+      return {
+        strategy: "HMO",
+        status,
+        metrics: [
+          ["Gross monthly rent", currency(grossMonthlyRent)],
+          ["Monthly cashflow", currency(monthlyCashflow)],
+          ["Annual cashflow", currency(annualCashflow)],
+          ["ROI", percent(roi)],
+          ["Gross yield", percent(grossYield)],
+          ["Commercial value", currency(commercialValue)]
+        ],
+        note: `${status.note} For England, mandatory HMO licensing often starts at 5+ occupants, but local councils can set wider licensing rules.`,
+        execHeadline: `${status.text}: HMO cashflow ${currency(monthlyCashflow)} per month`,
+        execBody: `Prepared for ${getLeadName()}. This HMO screens at ${percent(roi)} ROI, ${percent(grossYield)} gross yield, and a commercial value estimate of ${currency(commercialValue)}.`,
+        pitch: `HMO deal summary\nPrepared for: ${getLeadName()}\nStatus: ${status.text}\nGross monthly rent: ${currency(grossMonthlyRent)}\nMonthly cashflow: ${currency(monthlyCashflow)}\nAnnual cashflow: ${currency(annualCashflow)}\nROI: ${percent(roi)}\nCommercial value: ${currency(commercialValue)}\nSource: https://marcinsakowski.com`,
+        stress: [
+          `HMO STRESS TEST`,
+          ``,
+          stressLine("Base case", monthlyCashflow, roi, "ROI"),
+          stressLine("Mortgage rate +1.00%", grossMonthlyRent - (mortgageAmount * (mortgageRate + 0.01) / 12) - monthlyOperatingCosts - managementFee - monthlyUtilities - monthlyFurnitureLease - monthlyInvestorCost, safeDivide((grossMonthlyRent - (mortgageAmount * (mortgageRate + 0.01) / 12) - monthlyOperatingCosts - managementFee - monthlyUtilities - monthlyFurnitureLease - monthlyInvestorCost) * 12, cashLeftIn), "ROI"),
+          stressLine("Room rents -10%", grossMonthlyRent * 0.9 - ((grossMonthlyRent * 0.9) * managementFeePct + monthlyMortgage + monthlyOperatingCosts + monthlyUtilities + monthlyFurnitureLease + monthlyInvestorCost), safeDivide((grossMonthlyRent * 0.9 - ((grossMonthlyRent * 0.9) * managementFeePct + monthlyMortgage + monthlyOperatingCosts + monthlyUtilities + monthlyFurnitureLease + monthlyInvestorCost)) * 12, cashLeftIn), "ROI"),
+          stressLine("Bills +15%", grossMonthlyRent - (monthlyMortgage + monthlyOperatingCosts + managementFee + monthlyUtilities * 1.15 + monthlyFurnitureLease + monthlyInvestorCost), safeDivide((grossMonthlyRent - (monthlyMortgage + monthlyOperatingCosts + managementFee + monthlyUtilities * 1.15 + monthlyFurnitureLease + monthlyInvestorCost)) * 12, cashLeftIn), "ROI")
+        ].join("\n"),
+        details: [
+          `HMO BREAKDOWN`,
+          ``,
+          `Stamp duty:             ${currency(stampDuty)}`,
+          `Total upfront cost:     ${currency(upfrontTotal)}`,
+          `Gross monthly rent:     ${currency(grossMonthlyRent)}`,
+          `Management fee:         ${currency(managementFee)}`,
+          `Mortgage amount:        ${currency(mortgageAmount)}`,
+          `Monthly mortgage:       ${currency(monthlyMortgage)}`,
+          `Monthly investor cost:  ${currency(monthlyInvestorCost)}`,
+          `Total monthly costs:    ${currency(totalMonthlyCosts)}`,
+          `Monthly cashflow:       ${currency(monthlyCashflow)}`,
+          `Annual cashflow:        ${currency(annualCashflow)}`,
+          `Cash left in deal:      ${currency(cashLeftIn)}`,
+          `ROI:                    ${percent(roi)}`,
+          `Gross yield:            ${percent(grossYield)}`,
+          `Commercial value:       ${currency(commercialValue)}`,
+          `Equity / uplift:        ${currency(equityOrProfit)}`
+        ].join("\n")
+      };
+    }
+
+    function stressLine(label, monthlyCashflow, annualReturn, returnLabel) {
+      return `${label.padEnd(26, " ")} Cashflow ${currency(monthlyCashflow).padStart(12, " ")} | ${returnLabel}: ${percent(annualReturn)}`;
+    }
+
+    function renderResult(payload) {
+      statusBadge.textContent = payload.status.text;
+      statusBadge.style.background = payload.status.color;
+      metricsGrid.innerHTML = payload.metrics.map(([label, value]) => `
+        <div class="metric">
+          <div class="metric-bar"></div>
+          <div class="metric-label">${label}</div>
+          <div class="metric-value">${value}</div>
+        </div>`).join("");
+      resultNote.textContent = payload.note;
+      execHeadline.textContent = payload.execHeadline;
+      execBody.textContent = payload.execBody;
+      pitchText.value = payload.pitch;
+      stressText.value = payload.stress;
+      detailsText.value = payload.details;
+    }
+
+    function downloadJson() {
+      const state = readState();
+      const payload = {
+        strategy: tabs[currentTab].label,
+        lead: {
+          name: document.getElementById("leadName").value,
+          email: document.getElementById("leadEmail").value,
+          phone: document.getElementById("leadPhone").value,
+          source: document.getElementById("leadSource").value
+        },
+        inputs: state,
+        exportedAt: new Date().toISOString(),
+        summary: pitchText.value,
+        stress: stressText.value,
+        details: detailsText.value
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${currentTab}-deal.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
