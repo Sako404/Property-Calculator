@@ -411,6 +411,7 @@
                   accept="application/json,.json"
                   style="display:none"
                 />
+          <button type="button" id="msExportCsvBtn" class="btn secondary">Export CSV</button>
           <a class="primary" id="exeDownloadLinkTop" href="https://github.com/Sako404/Property-Calculator/raw/refs/heads/main/PropertyInvestmentCalculator.exe" target="_blank" rel="noreferrer">Download Windows EXE</a>
         </div>
       </section>
@@ -1202,6 +1203,69 @@ window.addEventListener("DOMContentLoaded", () => {
     importInput.value = "";
   });
 });
+
+// === MS PRO v2: Export CSV ===
+function msEscapeCsvValue(value) {
+  if (value === null || value === undefined) return "";
+
+  const stringValue = String(value);
+  const escaped = stringValue.replace(/"/g, '""');
+
+  if (/[",\n\r]/.test(escaped)) {
+    return `"${escaped}"`;
+  }
+
+  return escaped;
+}
+
+function msBuildCsvFromSnapshot(snapshot) {
+  const rows = [
+    ["Field", "Value"]
+  ];
+
+  Object.entries(snapshot).forEach(([key, value]) => {
+    rows.push([key, value]);
+  });
+
+  return rows
+    .map(row => row.map(msEscapeCsvValue).join(","))
+    .join("\n");
+}
+
+function msDownloadTextFile(filename, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
+function msExportCsvDeal() {
+  const snapshot = msGetFormSnapshot();
+  const csv = msBuildCsvFromSnapshot(snapshot);
+
+  const date = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+  const filename = `property-calculator-deal-${date}.csv`;
+
+  msDownloadTextFile(filename, csv, "text/csv;charset=utf-8");
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const csvBtn = document.getElementById("msExportCsvBtn");
+
+  if (!csvBtn) return;
+
+  csvBtn.addEventListener("click", msExportCsvDeal);
+});
+
+
   </script>
 </body>
 </html>
