@@ -594,6 +594,9 @@
     };
 
     let currentTab = "btl";
+    let msLastPayload = null;
+    let msLastState = null;
+    
     const metricsGrid = document.getElementById("metricsGrid");
     const statusBadge = document.getElementById("statusBadge");
     const resultNote = document.getElementById("resultNote");
@@ -1028,6 +1031,9 @@
     }
 
     function renderResult(payload) {
+      msLastPayload = payload;
+      msLastState = readState();
+
       statusBadge.textContent = payload.status.text;
       statusBadge.style.background = payload.status.color;
       metricsGrid.innerHTML = payload.metrics.map(([label, value]) => `
@@ -1336,110 +1342,201 @@ function msClearAllData() {
 }
 
 // === MS PRO v2: Print / PDF Report ===
+function msEscapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function msBuildReportHtml() {
-  const date = new Date().toLocaleString("en-GB");
+      calculateCurrent();
 
-  const status =
-    document.querySelector("[class*='badge']")?.innerText ||
-    "Not calculated";
+      const payload = msLastPayload;
+      const state = msLastState || readState();
 
-  const executive =
-    document.querySelector("h2 + p")?.innerText ||
-    "Run the calculator to generate summary.";
-
-  const pitch =
-    document.querySelector("textarea")?.value ||
-    "";
-
-  const stress =
-    Array.from(document.querySelectorAll("textarea"))[1]?.value || "";
-
-  const details =
-    Array.from(document.querySelectorAll("textarea"))[2]?.value || "";
-
-  const metrics = Array.from(document.querySelectorAll("[style*='font-size:20px'], [style*='font-size:34px']"))
-    .map(el => el.innerText)
-    .join(" | ");
-
-  const snapshot = msGetFormSnapshot();
-
-  const rows = Object.entries(snapshot)
-    .map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`)
-    .join("");
-
-  return `
-  <!doctype html>
-  <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Property Deal Report</title>
-    <style>
-      body { font-family: Arial; margin:40px; color:#111; }
-      h1 { margin-bottom:6px; }
-      h2 { margin-top:28px; border-bottom:1px solid #ddd; }
-      .badge {
-        display:inline-block;
-        padding:8px 12px;
-        border-radius:8px;
-        font-weight:bold;
-        background:#111;
-        color:#fff;
+      if (!payload) {
+        alert("Calculate the deal first.");
+        return "";
       }
-      table {
-        width:100%;
-        border-collapse:collapse;
-        margin-top:12px;
-        font-size:13px;
-      }
-      td, th {
-        border:1px solid #ddd;
-        padding:8px;
-      }
-      th { background:#f3f3f3; }
-      .block {
-        margin-top:16px;
-        padding:12px;
-        background:#f9f9f9;
-        border-left:4px solid #00A6C8;
-      }
-    </style>
-  </head>
 
-  <body>
+      const date = new Date().toLocaleString("en-GB");
 
-    <h1>UK Property Investment Report</h1>
-    <div>${date}</div>
+      const lead = {
+        name: document.getElementById("leadName")?.value || "",
+        email: document.getElementById("leadEmail")?.value || "",
+        phone: document.getElementById("leadPhone")?.value || "",
+        source: document.getElementById("leadSource")?.value || ""
+      };
 
-    <div class="badge">${status}</div>
+      const metricRows = payload.metrics
+        .map(([label, value]) => `
+          <tr>
+            <td>${msEscapeHtml(label)}</td>
+            <td>${msEscapeHtml(value)}</td>
+          </tr>
+        `)
+        .join("");
 
-    <h2>Executive Summary</h2>
-    <div class="block">${executive}</div>
+      const inputRows = Object.entries(state)
+        .map(([key, value]) => `
+          <tr>
+            <td>${msEscapeHtml(key)}</td>
+            <td>${msEscapeHtml(String(value ?? ""))}</td>
+          </tr>
+        `)
+        .join("");
 
-    <h2>Key Metrics</h2>
-    <div class="block">${metrics}</div>
+      return `
+    <!doctype html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${msEscapeHtml(payload.strategy)} Property Deal Report</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          color: #141B24;
+          margin: 38px;
+          line-height: 1.45;
+        }
 
-    <h2>Investor Pitch</h2>
-    <div class="block">${pitch}</div>
+        .header {
+          border-bottom: 5px solid #00A6C8;
+          padding-bottom: 18px;
+          margin-bottom: 24px;
+        }
 
-    <h2>Stress Test</h2>
-    <div class="block">${stress}</div>
+        h1 {
+          margin: 0;
+          font-size: 30px;
+          color: #141B24;
+        }
 
-    <h2>Detailed Breakdown</h2>
-    <div class="block">${details}</div>
+        h2 {
+          margin-top: 28px;
+          color: #141B24;
+          border-bottom: 1px solid #d1d5db;
+          padding-bottom: 7px;
+        }
 
-    <h2>Inputs</h2>
-    <table>
-      <tr><th>Field</th><th>Value</th></tr>
-      ${rows}
-    </table>
+        .subtitle {
+          color: #4b5563;
+          margin-top: 8px;
+        }
 
-    <script>
-      window.onload = () => window.print();
-    <\/script>
+        .status {
+          display: inline-block;
+          margin-top: 14px;
+          padding: 9px 14px;
+          border-radius: 999px;
+          background: #141B24;
+          color: white;
+          font-weight: bold;
+        }
 
-  </body>
-  </html>
-  `;
+        .box {
+          background: #f9fafb;
+          border-left: 4px solid #00A6C8;
+          padding: 13px;
+          margin-top: 12px;
+          white-space: pre-wrap;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 12px;
+          font-size: 13px;
+        }
+
+        th, td {
+          border: 1px solid #d1d5db;
+          padding: 8px;
+          text-align: left;
+          vertical-align: top;
+        }
+
+        th {
+          background: #f3f4f6;
+        }
+
+        .footer {
+          margin-top: 36px;
+          font-size: 12px;
+          color: #6b7280;
+          border-top: 1px solid #d1d5db;
+          padding-top: 14px;
+        }
+
+        @media print {
+          body { margin: 20mm; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>UK Property Investment Report</h1>
+        <div class="subtitle">${msEscapeHtml(payload.strategy)} deal report generated by the UK Property Investment Calculator.</div>
+        <div class="status">${msEscapeHtml(payload.status.text)}</div>
+      </div>
+
+      <h2>Report Details</h2>
+      <p><strong>Generated:</strong> ${msEscapeHtml(date)}</p>
+      <p><strong>Prepared for:</strong> ${msEscapeHtml(lead.name || "Investor")}</p>
+      <p><strong>Email:</strong> ${msEscapeHtml(lead.email)}</p>
+      <p><strong>Phone:</strong> ${msEscapeHtml(lead.phone)}</p>
+      <p><strong>Source / Notes:</strong> ${msEscapeHtml(lead.source)}</p>
+
+      <h2>Executive Summary</h2>
+      <div class="box"><strong>${msEscapeHtml(payload.execHeadline)}</strong>
+
+    ${msEscapeHtml(payload.execBody)}
+
+    ${msEscapeHtml(payload.note)}</div>
+
+      <h2>Key Metrics</h2>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+        ${metricRows}
+      </table>
+
+      <h2>Investor Pitch</h2>
+      <div class="box">${msEscapeHtml(payload.pitch)}</div>
+
+      <h2>Stress Test</h2>
+      <div class="box">${msEscapeHtml(payload.stress)}</div>
+
+      <h2>Detailed Breakdown</h2>
+      <div class="box">${msEscapeHtml(payload.details)}</div>
+
+      <h2>Inputs</h2>
+      <table>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+        </tr>
+        ${inputRows}
+      </table>
+
+      <div class="footer">
+        Prepared using the UK Property Investment Calculator by Marcin Sakowski.
+        This report is for deal screening and education only. It is not financial, tax, legal or mortgage advice.
+      </div>
+
+      <script>
+        window.onload = function () {
+          window.print();
+        };
+      <\/script>
+    </body>
+    </html>
+      `;
 }
 
 function msPrintPdfReport() {
