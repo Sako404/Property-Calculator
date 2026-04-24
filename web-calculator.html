@@ -1059,6 +1059,92 @@
       a.remove();
       URL.revokeObjectURL(url);
     }
+
+    // === MS PRO v2: Autosave / Restore ===
+const MS_AUTOSAVE_KEY = "ms_property_calculator_autosave_v2";
+
+function msGetFormSnapshot() {
+  const snapshot = {};
+
+  document.querySelectorAll("input, select, textarea").forEach((el) => {
+    if (!el.id && !el.name) return;
+
+    const key = el.id || el.name;
+
+    if (el.type === "checkbox") {
+      snapshot[key] = el.checked;
+    } else if (el.type === "radio") {
+      if (el.checked) snapshot[key] = el.value;
+    } else {
+      snapshot[key] = el.value;
+    }
+  });
+
+  return snapshot;
+}
+
+function msRestoreFormSnapshot(snapshot) {
+  if (!snapshot) return;
+
+  document.querySelectorAll("input, select, textarea").forEach((el) => {
+    const key = el.id || el.name;
+    if (!key || !(key in snapshot)) return;
+
+    if (el.type === "checkbox") {
+      el.checked = Boolean(snapshot[key]);
+    } else if (el.type === "radio") {
+      el.checked = el.value === snapshot[key];
+    } else {
+      el.value = snapshot[key];
+    }
+
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
+
+function msSaveAutosave() {
+  try {
+    const payload = {
+      savedAt: new Date().toISOString(),
+      url: window.location.href,
+      data: msGetFormSnapshot()
+    };
+
+    localStorage.setItem(MS_AUTOSAVE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("MS autosave failed:", error);
+  }
+}
+
+function msLoadAutosave() {
+  try {
+    const raw = localStorage.getItem(MS_AUTOSAVE_KEY);
+    if (!raw) return;
+
+    const payload = JSON.parse(raw);
+    if (!payload || !payload.data) return;
+
+    msRestoreFormSnapshot(payload.data);
+    console.log("MS autosave restored:", payload.savedAt);
+  } catch (error) {
+    console.warn("MS autosave restore failed:", error);
+  }
+}
+
+function msClearAutosave() {
+  localStorage.removeItem(MS_AUTOSAVE_KEY);
+  alert("Saved calculator data cleared.");
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  msLoadAutosave();
+
+  document.querySelectorAll("input, select, textarea").forEach((el) => {
+    el.addEventListener("input", msSaveAutosave);
+    el.addEventListener("change", msSaveAutosave);
+  });
+});
   </script>
 </body>
 </html>
