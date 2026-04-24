@@ -412,6 +412,7 @@
                   style="display:none"
                 />
           <button type="button" id="msExportCsvBtn" class="btn secondary">Export CSV</button>
+          <button type="button" id="msClearDataBtn" class="btn secondary">Clear saved data</button>
           <a class="primary" id="exeDownloadLinkTop" href="https://github.com/Sako404/Property-Calculator/raw/refs/heads/main/PropertyInvestmentCalculator.exe" target="_blank" rel="noreferrer">Download Windows EXE</a>
         </div>
       </section>
@@ -1152,6 +1153,11 @@ window.addEventListener("DOMContentLoaded", () => {
     el.addEventListener("input", msSaveAutosave);
     el.addEventListener("change", msSaveAutosave);
   });
+  const clearBtn = document.getElementById("msClearDataBtn");
+
+if (clearBtn) {
+  clearBtn.addEventListener("click", msClearAllData);
+}
 });
 
 // === MS PRO v2: Import JSON / Load Deal ===
@@ -1264,6 +1270,25 @@ window.addEventListener("DOMContentLoaded", () => {
 
   csvBtn.addEventListener("click", msExportCsvDeal);
 });
+// === MS PRO v2: Clear autosave ===
+function msClearAllData() {
+  const confirmed = confirm("Clear all saved calculator data?");
+
+  if (!confirmed) return;
+
+  localStorage.removeItem(MS_AUTOSAVE_KEY);
+
+  document.querySelectorAll("input, select, textarea").forEach((el) => {
+    if (el.type === "checkbox" || el.type === "radio") {
+      el.checked = false;
+    } else {
+      el.value = "";
+    }
+  });
+
+  location.reload();
+}
+
 
 
   </script>
