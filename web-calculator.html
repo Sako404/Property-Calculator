@@ -404,6 +404,13 @@
           <button id="calculateBtn" class="primary">Calculate</button>
           <button id="copySummaryBtn">Copy summary</button>
           <button id="downloadJsonBtn">Download JSON</button>
+          <button type="button" id="msImportJsonBtn" class="btn secondary">Import JSON</button>
+                <input
+                  type="file"
+                  id="msImportJsonInput"
+                  accept="application/json,.json"
+                  style="display:none"
+                />
           <a class="primary" id="exeDownloadLinkTop" href="https://github.com/Sako404/Property-Calculator/raw/refs/heads/main/PropertyInvestmentCalculator.exe" target="_blank" rel="noreferrer">Download Windows EXE</a>
         </div>
       </section>
@@ -1143,6 +1150,56 @@ window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("input, select, textarea").forEach((el) => {
     el.addEventListener("input", msSaveAutosave);
     el.addEventListener("change", msSaveAutosave);
+  });
+});
+
+// === MS PRO v2: Import JSON / Load Deal ===
+function msImportJsonDeal(file) {
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function (event) {
+    try {
+      const payload = JSON.parse(event.target.result);
+
+      const data =
+        payload.data ||
+        payload.inputs ||
+        payload.Inputs ||
+        payload;
+
+      if (!data || typeof data !== "object") {
+        alert("Invalid JSON file. No deal data found.");
+        return;
+      }
+
+      msRestoreFormSnapshot(data);
+      msSaveAutosave();
+
+      alert("Deal imported successfully.");
+    } catch (error) {
+      console.error(error);
+      alert("Could not import JSON file.");
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const importBtn = document.getElementById("msImportJsonBtn");
+  const importInput = document.getElementById("msImportJsonInput");
+
+  if (!importBtn || !importInput) return;
+
+  importBtn.addEventListener("click", () => {
+    importInput.click();
+  });
+
+  importInput.addEventListener("change", () => {
+    msImportJsonDeal(importInput.files[0]);
+    importInput.value = "";
   });
 });
   </script>
