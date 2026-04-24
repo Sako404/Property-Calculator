@@ -412,6 +412,7 @@
                   style="display:none"
                 />
           <button type="button" id="msExportCsvBtn" class="btn secondary">Export CSV</button>
+          <button type="button" id="msPrintReportBtn" class="btn secondary">Print / PDF Report</button>
           <button type="button" id="msClearDataBtn" class="btn secondary">Clear saved data</button>
           <a class="primary" id="exeDownloadLinkTop" href="https://github.com/Sako404/Property-Calculator/raw/refs/heads/main/PropertyInvestmentCalculator.exe" target="_blank" rel="noreferrer">Download Windows EXE</a>
         </div>
@@ -1289,7 +1290,160 @@ function msClearAllData() {
   location.reload();
 }
 
+// === MS PRO v2: Print / PDF Report ===
+function msBuildReportHtml() {
+  const snapshot = msGetFormSnapshot();
+  const date = new Date().toLocaleString("en-GB");
 
+  const rows = Object.entries(snapshot)
+    .map(([key, value]) => `
+      <tr>
+        <td>${key}</td>
+        <td>${String(value ?? "")}</td>
+      </tr>
+    `)
+    .join("");
+
+  return `
+    <!doctype html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>UK Property Investment Calculator Report</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          color: #141B24;
+          margin: 40px;
+          line-height: 1.45;
+        }
+        .header {
+          border-bottom: 4px solid #00A6C8;
+          padding-bottom: 18px;
+          margin-bottom: 24px;
+        }
+        h1 {
+          margin: 0;
+          font-size: 28px;
+          color: #141B24;
+        }
+        .subtitle {
+          color: #4b5563;
+          margin-top: 8px;
+        }
+        .badge {
+          display: inline-block;
+          margin-top: 12px;
+          padding: 8px 12px;
+          background: #141B24;
+          color: white;
+          border-radius: 10px;
+          font-weight: bold;
+        }
+        h2 {
+          margin-top: 28px;
+          color: #141B24;
+          border-bottom: 1px solid #d1d5db;
+          padding-bottom: 6px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 14px;
+          font-size: 13px;
+        }
+        th, td {
+          border: 1px solid #d1d5db;
+          padding: 8px;
+          text-align: left;
+          vertical-align: top;
+        }
+        th {
+          background: #f3f4f6;
+        }
+        .note {
+          background: #f9fafb;
+          border-left: 4px solid #00A6C8;
+          padding: 12px;
+          margin-top: 18px;
+          color: #374151;
+        }
+        .footer {
+          margin-top: 36px;
+          font-size: 12px;
+          color: #6b7280;
+          border-top: 1px solid #d1d5db;
+          padding-top: 14px;
+        }
+        @media print {
+          button { display: none; }
+          body { margin: 22mm; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>UK Property Investment Calculator</h1>
+        <div class="subtitle">Investor-style deal report generated from the web calculator.</div>
+        <div class="badge">marcinsakowski.com</div>
+      </div>
+
+      <h2>Report Details</h2>
+      <p><strong>Generated:</strong> ${date}</p>
+      <p><strong>Source:</strong> https://www.marcinsakowski.com/webcalculator</p>
+
+      <div class="note">
+        This report is for deal screening and education only. It is not financial, tax, legal or mortgage advice.
+      </div>
+
+      <h2>Deal Inputs</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+
+      <div class="footer">
+        Prepared using the UK Property Investment Calculator by Marcin Sakowski.
+      </div>
+
+      <script>
+        window.onload = function () {
+          window.print();
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
+}
+
+function msPrintPdfReport() {
+  const reportHtml = msBuildReportHtml();
+  const reportWindow = window.open("", "_blank");
+
+  if (!reportWindow) {
+    alert("Popup blocked. Please allow popups for this site and try again.");
+    return;
+  }
+
+  reportWindow.document.open();
+  reportWindow.document.write(reportHtml);
+  reportWindow.document.close();
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const printBtn = document.getElementById("msPrintReportBtn");
+
+  if (printBtn) {
+    printBtn.addEventListener("click", msPrintPdfReport);
+  }
+});
 
   </script>
 </body>
