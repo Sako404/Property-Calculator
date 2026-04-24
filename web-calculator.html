@@ -340,6 +340,31 @@
     h1, h2, h3 {
       letter-spacing: -0.3px;
     }
+    .badge {
+      display: inline-block;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 10px;
+      border-radius: 10px;
+
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+
+      width: 100%;           /* rozciąga jak wcześniej */
+      text-align: center;
+
+      text-decoration: none;
+      cursor: pointer;
+
+    }
+
+    /* .badge:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    } */
+
   </style>
 </head>
 <body>
@@ -349,7 +374,9 @@
         <h1>Property Calculator</h1>
         <p>BTL / BRRR / HMO analysis for UK deals.</p>
         <p>Use this tool to review property deal assumptions, compare key figures, and create a structured screening report.</p>
-        <div class="badge">Powered by marcinsakowski.com</div>
+        <a href="https://www.marcinsakowski.com" target="_blank" rel="noopener noreferrer" class="badge">
+          Built by Marcin Sakowski
+        </a>
       </div>
 
       <div class="nav">
