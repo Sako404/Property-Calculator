@@ -343,7 +343,7 @@
       <div class="hero">
         <h1>Property Calculator</h1>
         <p>BTL / BRRR / HMO analysis for UK deals.</p>
-        <p>Screen deals faster, pitch them better, and export investor-ready reports.</p>
+        <p>Use this tool to review property deal assumptions, compare key figures, and create a structured screening report.</p>
         <div class="badge">Powered by marcinsakowski.com</div>
       </div>
 
@@ -391,6 +391,20 @@
         </div>
       </section>
 
+      <section class="section-card" style="border-color:#ffd54f;background:#2a2414;">
+        <h3>Important Notice</h3>
+        <p>
+          This calculator is for general information, education and initial deal screening only.
+          It does not provide financial advice, investment advice, tax advice, legal advice,
+          mortgage advice or a recommendation to buy, sell, finance or proceed with any property transaction.
+        </p>
+        <p>
+          Results are estimates based only on the figures you enter. They may be incomplete,
+          inaccurate, outdated or unsuitable for your circumstances. Always verify figures independently
+          and speak to qualified professionals before making financial, legal, tax or mortgage decisions.
+        </p>
+      </section>
+
 <!-- <section class="download-cta">
         <h3>Prefer the desktop version?</h3>
         <p>Download the Windows EXE if you want the full desktop tool with local save/load and export workflow.</p>
@@ -403,6 +417,10 @@
 
       <section class="toolbar">
         <div class="toolbar-row">
+          <label style="display:flex;gap:10px;align-items:flex-start;width:100%;font-size:13px;color:#ffd54f;">
+            <input type="checkbox" id="msDisclaimerAccepted" style="width:auto;margin-top:3px;">
+            I understand this calculator is for education and deal screening only and is not financial, investment, tax, legal or mortgage advice.
+          </label>
           <button id="calculateBtn" class="primary">Calculate</button>
           <button id="copySummaryBtn">Copy summary</button>
           <button id="downloadJsonBtn">Download JSON</button>
@@ -434,7 +452,7 @@
                 <h3 id="resultTitle">BTL deal result</h3>
                 <p class="result-note" id="resultSubtitle">Screen a traditional buy-to-let using purchase cost, finance, rent, voids and operating cost assumptions.</p>
               </div>
-              <div id="statusBadge" class="status-badge" style="background: var(--warn);">Needs review</div>
+              <div id="statusBadge" class="status-badge" style="background: var(--warn);">Requires further review</div>
             </div>
 
             <div class="metrics" id="metricsGrid"></div>
@@ -596,7 +614,7 @@
     let currentTab = "btl";
     let msLastPayload = null;
     let msLastState = null;
-    
+
     const metricsGrid = document.getElementById("metricsGrid");
     const statusBadge = document.getElementById("statusBadge");
     const resultNote = document.getElementById("resultNote");
@@ -733,6 +751,13 @@
     }
 
     function calculateCurrent() {
+      const disclaimerAccepted = document.getElementById("msDisclaimerAccepted");
+
+      if (disclaimerAccepted && !disclaimerAccepted.checked) {
+        alert("Please confirm you understand the calculator is for education and screening only, not advice.");
+        return;
+      }
+
       const state = readState();
       let payload;
       if (currentTab === "btl") payload = calculateBtl(state);
@@ -757,18 +782,18 @@
 
     function getStatus(strategy, result) {
       if (strategy === "BTL") {
-        if (result.monthlyCashflow > 0 && result.grossYield >= 0.08 && result.cashOnCash >= 0.12) return { text: "Good deal", color: "var(--good)", note: "Positive cashflow, strong gross yield and healthy cash-on-cash return." };
-        if (result.monthlyCashflow > 0 && (result.grossYield >= 0.06 || result.cashOnCash >= 0.08)) return { text: "Needs review", color: "var(--warn)", note: "Deal is workable, but margin is thinner and should be stress-tested." };
-        return { text: "Weak deal", color: "var(--bad)", note: "Cashflow or return is too weak for a comfortable buy-to-let margin." };
+        if (result.monthlyCashflow > 0 && result.grossYield >= 0.08 && result.cashOnCash >= 0.12) return { text: "Strong screening result", color: "var(--good)", note: "Positive cashflow, strong gross yield and healthy cash-on-cash return." };
+        if (result.monthlyCashflow > 0 && (result.grossYield >= 0.06 || result.cashOnCash >= 0.08)) return { text: "Requires further review", color: "var(--warn)", note: "Deal is workable, but margin is thinner and should be stress-tested." };
+        return { text: "Weak screening result", color: "var(--bad)", note: "Cashflow or return is too weak for a comfortable buy-to-let margin." };
       }
       if (strategy === "BRRR") {
-        if (result.monthlyCashflow > 0 && result.roce >= 0.20 && result.cashLeftIn <= result.cashBeforeRefi * 0.60) return { text: "Good deal", color: "var(--good)", note: "Refinance leaves limited cash in the deal while maintaining strong ROCE." };
-        if (result.monthlyCashflow > 0 && result.roce >= 0.10) return { text: "Needs review", color: "var(--warn)", note: "The BRRR works on paper, but the refinance outcome needs checking." };
-        return { text: "Weak deal", color: "var(--bad)", note: "Too much cash stays in, or the refinance cashflow is too weak." };
+        if (result.monthlyCashflow > 0 && result.roce >= 0.20 && result.cashLeftIn <= result.cashBeforeRefi * 0.60) return { text: "Strong screening result", color: "var(--good)", note: "Refinance leaves limited cash in the deal while maintaining strong ROCE." };
+        if (result.monthlyCashflow > 0 && result.roce >= 0.10) return { text: "Requires further review", color: "var(--warn)", note: "The BRRR works on paper, but the refinance outcome needs checking." };
+        return { text: "Weak screening result", color: "var(--bad)", note: "Too much cash stays in, or the refinance cashflow is too weak." };
       }
-      if (result.monthlyCashflow > 0 && result.roi >= 0.15 && result.grossYield >= 0.10) return { text: "Good deal", color: "var(--good)", note: "Strong HMO cashflow and ROI with good rent-to-value performance." };
-      if (result.monthlyCashflow > 0 && result.roi >= 0.08) return { text: "Needs review", color: "var(--warn)", note: "The HMO can work, but rent, bills and management need tighter checks." };
-      return { text: "Weak deal", color: "var(--bad)", note: "Cashflow or ROI is too weak for the complexity and risk of an HMO." };
+      if (result.monthlyCashflow > 0 && result.roi >= 0.15 && result.grossYield >= 0.10) return { text: "Strong screening result", color: "var(--good)", note: "Strong HMO cashflow and ROI with good rent-to-value performance." };
+      if (result.monthlyCashflow > 0 && result.roi >= 0.08) return { text: "Requires further review", color: "var(--warn)", note: "The HMO can work, but rent, bills and management need tighter checks." };
+      return { text: "Weak screening result", color: "var(--bad)", note: "Cashflow or ROI is too weak for the complexity and risk of an HMO." };
     }
 
     function calculateBtl(s) {
@@ -1526,7 +1551,7 @@ function msBuildReportHtml() {
 
       <div class="footer">
         Prepared using the UK Property Investment Calculator by Marcin Sakowski.
-        This report is for deal screening and education only. It is not financial, tax, legal or mortgage advice.
+        This report is for general information, education and initial deal screening only. It is not financial advice, investment advice, tax advice, legal advice, mortgage advice or a recommendation to buy, sell, finance or proceed with any property transaction. Results are estimates based on user-entered assumptions and must be independently verified with suitably qualified professionals.
       </div>
 
       <script>
